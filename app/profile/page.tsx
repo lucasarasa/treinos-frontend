@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { authClient } from "@/app/_lib/auth-client";
-import { getUserTrainData } from "@/app/_lib/api/fetch-generated";
+import { getUserTrainData, getHomeData } from "@/app/_lib/api/fetch-generated";
+import dayjs from "dayjs";
 import { BottomNav } from "@/app/_components/bottom-nav";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Weight, Ruler, BicepsFlexed, User } from "lucide-react";
@@ -16,11 +17,19 @@ export default async function ProfilePage() {
 
   if (!session.data?.user) redirect("/auth");
 
-  const trainData = await getUserTrainData();
+  const [trainData, homeData] = await Promise.all([
+    getUserTrainData(),
+    getHomeData(dayjs().format("YYYY-MM-DD")),
+  ]);
 
   if (trainData.status !== 200) {
     throw new Error("Failed to fetch user train data");
   }
+
+  const needsOnboarding =
+    (homeData.status === 200 && !homeData.data.activeWorkoutPlanId) ||
+    !trainData.data;
+  if (needsOnboarding) redirect("/onboarding");
 
   const user = session.data.user;
   const data = trainData.data;
@@ -32,7 +41,7 @@ export default async function ProfilePage() {
 
   return (
     <div className="flex min-h-svh flex-col bg-background pb-24">
-      <div className="flex h-14 items-center px-5">
+      <div className="flex h-[56px] items-center px-5">
         <p
           className="text-[22px] uppercase leading-[1.15] text-foreground"
           style={{ fontFamily: "var(--font-anton)" }}
@@ -44,7 +53,7 @@ export default async function ProfilePage() {
       <div className="flex flex-col items-center gap-5 px-5 pt-5">
         <div className="flex w-full items-center justify-between">
           <div className="flex items-center gap-3">
-            <Avatar className="size-13">
+            <Avatar className="size-[52px]">
               <AvatarImage src={user.image ?? undefined} alt={user.name} />
               <AvatarFallback className="text-lg">
                 {user.name?.charAt(0)?.toUpperCase()}
@@ -63,7 +72,7 @@ export default async function ProfilePage() {
 
         <div className="grid w-full grid-cols-2 gap-3">
           <div className="flex flex-col items-center gap-5 rounded-xl bg-primary/8 p-5">
-            <div className="flex items-center rounded-full bg-primary/8 p-2.25">
+            <div className="flex items-center rounded-full bg-primary/8 p-[9px]">
               <Weight className="size-4 text-primary" />
             </div>
             <div className="flex flex-col items-center gap-1.5">
@@ -77,7 +86,7 @@ export default async function ProfilePage() {
           </div>
 
           <div className="flex flex-col items-center gap-5 rounded-xl bg-primary/8 p-5">
-            <div className="flex items-center rounded-full bg-primary/8 p-2.25">
+            <div className="flex items-center rounded-full bg-primary/8 p-[9px]">
               <Ruler className="size-4 text-primary" />
             </div>
             <div className="flex flex-col items-center gap-1.5">
@@ -91,7 +100,7 @@ export default async function ProfilePage() {
           </div>
 
           <div className="flex flex-col items-center gap-5 rounded-xl bg-primary/8 p-5">
-            <div className="flex items-center rounded-full bg-primary/8 p-2.25">
+            <div className="flex items-center rounded-full bg-primary/8 p-[9px]">
               <BicepsFlexed className="size-4 text-primary" />
             </div>
             <div className="flex flex-col items-center gap-1.5">
@@ -105,7 +114,7 @@ export default async function ProfilePage() {
           </div>
 
           <div className="flex flex-col items-center gap-5 rounded-xl bg-primary/8 p-5">
-            <div className="flex items-center rounded-full bg-primary/8 p-2.25">
+            <div className="flex items-center rounded-full bg-primary/8 p-[9px]">
               <User className="size-4 text-primary" />
             </div>
             <div className="flex flex-col items-center gap-1.5">
