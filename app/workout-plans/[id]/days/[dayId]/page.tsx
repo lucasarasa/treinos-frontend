@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { authClient } from "@/app/_lib/auth-client";
-import { headers } from "next/headers";
+// import { authClient } from "@/app/_lib/auth-client";
+// import { headers } from "next/headers";
 import {
   getWorkoutDay,
   getHomeData,
@@ -15,6 +15,7 @@ import { BackButton } from "./_components/back-button";
 import { ExerciseCard } from "./_components/exercise-card";
 import { StartWorkoutButton } from "./_components/start-workout-button";
 import { CompleteWorkoutButton } from "./_components/complete-workout-button";
+import { getSessionServer } from "@/app/_lib/get-session-server";
 
 const WEEKDAY_LABELS: Record<string, string> = {
   MONDAY: "SEGUNDA",
@@ -41,13 +42,14 @@ export default async function WorkoutDayPage({
 }: {
   params: Promise<{ id: string; dayId: string }>;
 }) {
-  const session = await authClient.getSession({
-    fetchOptions: {
-      headers: await headers(),
-    },
-  });
+  // const session = await authClient.getSession({
+  //   fetchOptions: {
+  //     headers: await headers(),
+  //   },
+  // });
+  const session = await getSessionServer();
 
-  if (!session.data?.user) redirect("/auth");
+  if (!session?.user) redirect("/auth");
 
   const { id: workoutPlanId, dayId } = await params;
   const [workoutDayData, homeData, trainData] = await Promise.all([

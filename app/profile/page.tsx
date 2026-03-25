@@ -1,21 +1,23 @@
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
-import { authClient } from "@/app/_lib/auth-client";
+// import { headers } from "next/headers";
+// import { authClient } from "@/app/_lib/auth-client";
 import { getUserTrainData, getHomeData } from "@/app/_lib/api/fetch-generated";
 import dayjs from "dayjs";
 import { BottomNav } from "@/app/_components/bottom-nav";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Weight, Ruler, BicepsFlexed, User } from "lucide-react";
 import { LogoutButton } from "./_components/logout-button";
+import { getSessionServer } from "../_lib/get-session-server";
 
 export default async function ProfilePage() {
-  const session = await authClient.getSession({
-    fetchOptions: {
-      headers: await headers(),
-    },
-  });
+  // const session = await authClient.getSession({
+  //   fetchOptions: {
+  //     headers: await headers(),
+  //   },
+  // });
+  const session = await getSessionServer();
 
-  if (!session.data?.user) redirect("/auth");
+  if (!session?.user) redirect("/auth");
 
   const [trainData, homeData] = await Promise.all([
     getUserTrainData(),
@@ -31,7 +33,7 @@ export default async function ProfilePage() {
     !trainData.data;
   if (needsOnboarding) redirect("/onboarding");
 
-  const user = session.data.user;
+  const user = session.user;
   const data = trainData.data;
 
   const weightInKg = data ? data.weightInGrams / 1000 : null;

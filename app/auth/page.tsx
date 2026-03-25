@@ -1,17 +1,19 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import { authClient } from "@/app/_lib/auth-client";
-import { headers } from "next/headers";
+// import { authClient } from "@/app/_lib/auth-client";
+// import { headers } from "next/headers";
 import { SignInWithGoogle } from "./_components/sign-in-with-google";
+import { getSessionServer } from "../_lib/get-session-server";
 
 export default async function AuthPage() {
-  const session = await authClient.getSession({
-    fetchOptions: {
-      headers: await headers(),
-    },
-  });
+  // const session = await authClient.getSession({
+  //   fetchOptions: {
+  //     headers: await headers(),
+  //   },
+  // });
+  const session = await getSessionServer();
 
-  if (session.data?.user) redirect("/");
+  if (session?.user) redirect("/");
 
   return (
     <div className="relative flex min-h-svh flex-col bg-black">

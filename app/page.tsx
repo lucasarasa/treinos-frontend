@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { authClient } from "@/app/_lib/auth-client";
-import { headers } from "next/headers";
+// import { authClient } from "@/app/_lib/auth-client";
+// import { headers } from "next/headers";
 import { getHomeData, getUserTrainData } from "./_lib/api/fetch-generated";
 import dayjs from "dayjs";
 import Image from "next/image";
@@ -9,15 +9,17 @@ import { Flame } from "lucide-react";
 import { BottomNav } from "./_components/bottom-nav";
 import { ConsistencyTracker } from "./_components/consistency-tracker";
 import { WorkoutDayCard } from "./_components/workout-day-card";
+import { getSessionServer } from "./_lib/get-session-server";
 
 export default async function Home() {
-  const session = await authClient.getSession({
-    fetchOptions: {
-      headers: await headers(),
-    },
-  });
+  // const session = await authClient.getSession({
+  //   fetchOptions: {
+  //     headers: await headers(),
+  //   },
+  // });
+  const session = await getSessionServer();
 
-  if (!session.data?.user) redirect("/auth");
+  if (!session?.user) redirect("/auth");
 
   const today = dayjs();
   const [homeData, trainData] = await Promise.all([
@@ -35,7 +37,7 @@ export default async function Home() {
   if (needsOnboarding) redirect("/onboarding");
 
   const { todayWorkoutDay, workoutStreak, consistencyByDay } = homeData.data;
-  const userName = session.data.user.name?.split(" ")[0] ?? "";
+  const userName = session.user.name?.split(" ")[0] ?? "";
 
   return (
     <div className="flex min-h-svh flex-col bg-background pb-24">
